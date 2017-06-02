@@ -95,6 +95,15 @@ c.therock = {}
 c.therock.key = 'YOUR-API-KEY'
 c.therock.secret = 'YOUR-SECRET'
 
+// Notification API keys:
+
+// to enable Telegram notification, enter your API credentials:
+c.telegram = {}
+c.telegram.bot = {}
+c.telegram.bot.token = 'YOUR-TOKEN'
+c.telegram.user = {}
+c.telegram.user.id = 'YOUR-USER-ID'
+
 // Optional stop-order triggers:
 
 // sell if price drops below this % of bought price (0 to disable)

@@ -46,6 +46,7 @@
     "pushbullet": "2.0.0",
     "pusher-js": "^4.1.0",
     "quadrigacx": "0.0.7",
+    "request": "^2.81.0",
     "run-parallel": "^1.1.6",
     "run-series": "^1.1.4",
     "semver": "^5.4.1",
