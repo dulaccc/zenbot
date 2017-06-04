@@ -14,16 +14,23 @@ module.exports = function container (get, set, clear) {
       this.option('signal_period', 'number of periods for the signal EMA', Number, 9)
       this.option('up_trend_threshold', 'threshold to trigger a buy signal', Number, 0)
       this.option('down_trend_threshold', 'threshold to trigger a sold signal', Number, 0)
-      this.option('overbought_rsi_periods', 'number of periods for overbought RSI', Number, 25)
+      this.option('custom_rsi_periods', 'number of periods for overbought RSI (otherwise defaults to config)', Number, 25)
       this.option('overbought_rsi', 'sold when RSI exceeds this value', Number, 70)
+      this.option('buy_rsi_threshold', 'avoid buying if RSI exceeds this value', Number, 68)
     },
 
     calculate: function (s) {
-      if (s.options.overbought_rsi) {
+      if (s.options.custom_rsi_periods) {
         // sync RSI display with overbought RSI periods
-        s.options.rsi_periods = s.options.overbought_rsi_periods
-        get('lib.rsi')(s, 'overbought_rsi', s.options.overbought_rsi_periods)
-        if (!s.in_preroll && s.period.overbought_rsi >= s.options.overbought_rsi && !s.overbought) {
+        s.options.rsi_periods = s.options.custom_rsi_periods
+      }
+
+      // update RSI value
+      get('lib.rsi')(s, 'rsi', s.options.rsi_periods)
+
+      // detect overbought
+      if (s.options.overbought_rsi) {
+        if (!s.in_preroll && s.period.rsi >= s.options.overbought_rsi && !s.overbought) {
           s.overbought = true
           if (s.options.mode === 'sim' && s.options.verbose) console.log(('\noverbought at ' + s.period.overbought_rsi + ' RSI, preparing to sold\n').cyan)
         }
@@ -53,14 +60,29 @@ module.exports = function container (get, set, clear) {
 
       if (typeof s.period.macd_histogram === 'number' && typeof s.lookback[0].macd_histogram === 'number') {
         if (s.period.macd_histogram > s.options.up_trend_threshold && s.lookback[0].macd_histogram <= 0) {
-          s.signal = 'buy';
-        } else if (s.period.macd_histogram < -s.options.down_trend_threshold && s.lookback[0].macd_histogram >= 0) {
-          s.signal = 'sell';
+          if (s.period.rsi >= s.options.buy_rsi_threshold) {
+            s.signal = null
+            if (s.options.mode === 'sim' && s.options.verbose) console.log(('\nbuy cancelled because of RSI is too high: ' + s.period.rsi + ' > ' + s.options.buy_rsi_threshold + '\n').cyan)
+            return cb()
+          } else {
+            s.signal = 'buy'
+          }
+        } else if (s.period.macd_histogram < s.options.down_trend_threshold && s.lookback[0].macd_histogram >= 0) {
+          s.signal = 'sell'
         } else {
-          s.signal = null;  // hold
+          // if the positive MACD loose more than 30% in 1h, then we sell
+          // if (s.period.macd_histogram > 0 && s.lookback[0].macd_histogram >= 0 && s.lookback[0].macd_histogram >= 7.0) {
+          //   var decrease_rate = (s.lookback[0].macd_histogram - s.period.macd_histogram) / s.lookback[0].macd_histogram
+          //   if (decrease_rate > 0.30) {
+          //     s.signal = 'sell'
+          //     return cb()
+          //   }
+          // }
+
+          s.signal = null  // hold
         }
       }
-      cb()
+      return cb()
     },
 
     onReport: function (s) {
@@ -74,7 +96,7 @@ module.exports = function container (get, set, clear) {
           color = 'red'
         }
         cols.push(z(8, n(s.period.macd_histogram).format('+00.0000'), ' ')[color])
-        cols.push(z(8, n(s.period.overbought_rsi).format('00.0'), ' ').cyan)
+        cols.push(z(8, n(s.period.rsi).format('00.0'), ' ').cyan)
       }
       else {
         cols.push('         ')
