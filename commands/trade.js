@@ -71,6 +71,9 @@ module.exports = function container (get, set, clear) {
           console.error('cannot trade ' + so.selector + ': exchange not implemented')
           process.exit(1)
         }
+        if (so.notify === true) {
+          so.notifier = get('lib.notifier')(c.telegram.bot.token, c.telegram.user.id, so)
+        }
         var engine = get('lib.engine')(s)
         
         const keyMap = new Map()
