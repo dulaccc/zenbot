@@ -15,7 +15,7 @@ module.exports = function container (get, set, clear) {
       this.option('up_trend_threshold', 'threshold to trigger a buy signal', Number, 0)
       this.option('down_trend_threshold', 'threshold to trigger a sold signal', Number, 0)
       this.option('custom_rsi_periods', 'number of periods for overbought RSI (otherwise defaults to config)', Number, 25)
-      this.option('overbought_rsi', 'sold when RSI exceeds this value', Number, 70)
+      this.option('overbought_rsi', 'sold when RSI exceeds this value', Number, 80)
       this.option('buy_rsi_threshold', 'avoid buying if RSI exceeds this value', Number, 68)
     },
 
@@ -49,7 +49,7 @@ module.exports = function container (get, set, clear) {
     },
 
     onPeriod: function (s, cb) {
-      if (!s.in_preroll && typeof s.period.overbought_rsi === 'number') {
+      if (!s.in_preroll && typeof s.period.rsi === 'number') {
         if (s.overbought) {
           s.overbought = false
           s.trend = 'overbought'
