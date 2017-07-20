@@ -207,6 +207,10 @@ module.exports = function container (get, set, clear) {
         }
         /* The end of printTrade */
 
+        if (so.notify === true) {
+          so.notifier.bindEngineActions(engine);
+        }
+
         var order_types = ['maker', 'taker']
         if (!so.order_type in order_types || !so.order_type) {
           so.order_type = 'maker'
