@@ -102,7 +102,7 @@ c.telegram = {}
 c.telegram.bot = {}
 c.telegram.bot.token = 'YOUR-TOKEN'
 c.telegram.user = {}
-c.telegram.user.id = 'YOUR-USER-ID'
+c.telegram.user_ids = ['YOUR-USER-ID']
 
 // Optional stop-order triggers:
 

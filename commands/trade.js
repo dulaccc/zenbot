@@ -72,7 +72,7 @@ module.exports = function container (get, set, clear) {
           process.exit(1)
         }
         if (so.notify === true) {
-          so.notifier = get('lib.notifier')(c.telegram.bot.token, c.telegram.user.id, so)
+          so.notifier = get('lib.notifier')(c.telegram.bot.token, c.telegram.user_ids, so)
           so.notifier.notifyUp()
         }
         var engine = get('lib.engine')(s)
